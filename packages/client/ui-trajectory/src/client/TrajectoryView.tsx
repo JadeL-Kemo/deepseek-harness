@@ -135,7 +135,9 @@ export function TrajectoryView({
   useSession, useTrajectory, useDuration, watchToolResult, loadOlder, loadImage, setActualDuration,
   viewRequest, completeViewRequest, renderSlot, t, jsonStringWrapping,
 }: ConvViewProps
-  & Pick<PropsRenderSlots<'conversation.trajectory.images'>, 'renderSlot'>
+  & Pick<PropsRenderSlots<
+    'conversation.trajectory.images' | 'conversation.trajectory.reasoning.body'
+  >, 'renderSlot'>
   & InjectFace<TrajectoryViewInjected>
   & PropsLocale<'trajectory'>) {
   const [collapsedTurns, setCollapsedTurns] = useState<ReadonlySet<number>>(EMPTY_TURN_IDS)

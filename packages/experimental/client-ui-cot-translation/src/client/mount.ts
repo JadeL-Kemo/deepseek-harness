@@ -4,6 +4,7 @@ import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import type {} from '@deepseek-ai/dsh-api-remotes/client'
 import type {} from '@deepseek-ai/dsh-client-locale/client'
 import type {} from '@deepseek-ai/dsh-client-ui-chat/client'
+import type {} from '@deepseek-ai/dsh-client-ui-trajectory/client'
 import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
 import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
@@ -12,6 +13,7 @@ import type { RemoteResult, TypertRemoteContribution } from '@deepseek-ai/dsh-ty
 import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
 import type { CotTranslationPreferences, CotTranslationSnapshot } from '../preferences.ts'
 import { TranslationBody, type TranslationBodyInjected } from './TranslationBody.tsx'
+import { TrajectoryTranslationBody } from './TrajectoryTranslationBody.tsx'
 import { TranslationSettings } from './TranslationSettings.tsx'
 import { TranslationPreferencesForm } from './preferences-form.ts'
 import { en, ja, es, fr, de, ru, pt, NS, zh } from './locales.ts'
@@ -102,6 +104,10 @@ async function registerUi(ctx: Context, lifetime: AbortController): Promise<void
     name: 'conversation.chat.reasoning.body', locale: NS,
     inject: injected,
   }, TranslationBody))
+  ctx.slots.inject('conversation.trajectory.reasoning.body', () => ctx.slots.register({
+    name: 'conversation.trajectory.reasoning.body', locale: NS,
+    inject: injected,
+  }, TrajectoryTranslationBody))
   ctx.slots.inject('plugins.bundle.config', () => ctx.slots.register({
     name: 'plugins.bundle.config', key: '@deepseek-ai/dsh-experimental-cot-translation-bundle', locale: NS,
     inject: () => {

@@ -39,7 +39,7 @@ Summary and Preview share one ordered attachment list after the message text, pr
 
 Requests remain pending while awaiting output, streaming, or retrying. A request without assistant output has no result link; interrupted output remains inspectable and both the request and assistant record show failure, including when the Step start is outside the loaded history. Retry counts and the last attempt error remain available after recovery; they do not change the current request status. A completed model response does not imply that its tools or turn have finished.
 
-Thinking in the inspector uses compact Markdown at the inspector's fixed 13px size and 20px line height, independent of the content-size setting. Headings add bold weight without increasing size or line height. Assistant output keeps its regular Markdown typography.
+Thinking in the inspector uses compact Markdown at the inspector's fixed 13px size and 20px line height, independent of the content-size setting. Headings add bold weight without increasing size or line height. Assistant output keeps its regular Markdown typography. The view declares `conversation.trajectory.reasoning.body`; the expanded disclosure routes its text through this Slot, and the official default Body entry calls the `conversation.trajectory.reasoning.content` Factory, so a contribution can replace the displayed Markdown while the Raw tab keeps recorded text.
 
 ### The timing overview
 

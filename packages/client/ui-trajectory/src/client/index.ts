@@ -28,6 +28,10 @@ import {
 import type { TrajectorySnapshot } from './trajectory-contract.ts'
 import { registerTrajectoryToolDefinition } from './trajectory-tool-definition.ts'
 import { TrajectoryView, type TrajectoryViewInjected } from './TrajectoryView.tsx'
+import {
+  DefaultTrajectoryReasoningBody,
+  TrajectoryReasoningContent,
+} from './TrajectoryReasoning.tsx'
 
 export type { TrajectoryKey } from './locales.ts'
 export type {
@@ -73,6 +77,18 @@ export function apply(ctx: Context): void {
   registerTrajectoryToolDefinition(ctx)
   registerTrajectoryCompactionDefinitions(ctx)
   registerTrajectoryConversationView(ctx)
+  // The reasoning Content Factory and its default Body Slot entry ship with
+  // the view, so translation contributions inherit the same compact
+  // typography and only substitute the displayed Markdown.
+  ctx.effect(() => ctx.slots.registerFactory({
+    name: 'conversation.trajectory.reasoning.content',
+    scope: 'root',
+    locale: NS,
+  }, TrajectoryReasoningContent))
+  ctx.slots.inject('conversation.trajectory.reasoning.body', () => ctx.slots.register({
+    name: 'conversation.trajectory.reasoning.body',
+    priority: 100,
+  }, DefaultTrajectoryReasoningBody))
   ctx.uiSession.provide({
     hooks: ['trajectory'],
     resolve: binding => ({ hooks: { trajectory: trajectorySource(binding) } }),
@@ -83,7 +99,10 @@ export function apply(ctx: Context): void {
     order: 10,
     locale: NS,
     label: () => t('view.trajectory'),
-    children: { 'conversation.trajectory.images': { kind: 'single', scope: 'session' } },
+    children: {
+      'conversation.trajectory.images': { kind: 'single', scope: 'session' },
+      'conversation.trajectory.reasoning.body': { kind: 'single', scope: 'session' },
+    },
     inject: (sessionId: SessionId): TrajectoryViewInjected => {
       const session = ctx.sessions.binding(sessionId)?.session
       if (session === undefined) {

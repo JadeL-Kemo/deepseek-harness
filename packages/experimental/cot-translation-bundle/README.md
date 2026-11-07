@@ -39,7 +39,7 @@ The selected service receives the expanded reasoning, which can contain private 
 <details>
 <summary>Maintainer details — click to expand</summary>
 
-The bundle patch inserts `translator` and `cot-translation`, selecting Bing and the interface language. The translator owns provider protocols, network limits, and shared persisted requests and results; the GUI consumer owns settings, paragraph scheduling, and a local cache for the current display. The GUI reuses saved results directly and joins normal Session activation when a new translation needs its existing writer. Its generated Remote contribution is mounted only while the bundle is enabled. The translation wrapper and Chat's default Body entry both call the official reasoning Content Factory.
+The bundle patch inserts `translator` and `cot-translation`, selecting Bing and the interface language. The translator owns provider protocols, network limits, and shared persisted requests and results; the GUI consumer owns settings, paragraph scheduling, and a local cache for the current display. The GUI reuses saved results directly and joins normal Session activation when a new translation needs its existing writer. Its generated Remote contribution is mounted only while the bundle is enabled. The translation wrapper and each surface's default Body entry both call the official reasoning Content Factory — Chat's and Trajectory's respectively.
 
 </details>
 

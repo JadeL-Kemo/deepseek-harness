@@ -28,6 +28,9 @@
       "path": "../../client/ui-chat/tsconfig.client.json"
     },
     {
+      "path": "../../client/ui-trajectory/tsconfig.client.json"
+    },
+    {
       "path": "../../client/ui-plugin-manager/tsconfig.client.json"
     },
     {

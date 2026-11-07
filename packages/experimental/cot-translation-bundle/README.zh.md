@@ -39,7 +39,7 @@ kind: "package-bundle"
 <details>
 <summary>维护者细节 — 点击展开</summary>
 
-Bundle 补丁插入 `translator` 和 `cot-translation`，选择 Bing 与界面语言。Translator 负责 Provider 协议、网络限制及统一持久保存的请求与结果；GUI 消费者负责设置、段落调度和当前展示使用的本地缓存。GUI 直接复用已保存结果，新翻译需要现有写入器时等待正常 Session 激活。生成的 Remote contribution 仅在 Bundle 启用期间挂载。翻译包装与 Chat 默认 Body 条目均调用官方思考 Content Factory。
+Bundle 补丁插入 `translator` 和 `cot-translation`，选择 Bing 与界面语言。Translator 负责 Provider 协议、网络限制及统一持久保存的请求与结果；GUI 消费者负责设置、段落调度和当前展示使用的本地缓存。GUI 直接复用已保存结果，新翻译需要现有写入器时等待正常 Session 激活。生成的 Remote contribution 仅在 Bundle 启用期间挂载。翻译包装与各界面默认 Body 条目均调用官方思考 Content Factory：Chat 与 Trajectory 各自复用所属视图的 Factory。
 
 </details>
 
