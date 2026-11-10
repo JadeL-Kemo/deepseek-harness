@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-以其他语言阅读展开的模型思考内容，并随时切回原文。在插件面板中选择翻译服务和目标语言。翻译会将显示的思考内容发送给所选外部服务，其中可能包含私有代码或对话细节。Session 和模型上下文保留原始思考内容。
+以其他语言阅读展开的模型思考内容，并随时切回原文。翻译覆盖 Chat 中展开的思考正文，以及 Trajectory 检查器中展开的思考内容；折叠预览与检查器的 Raw 标签保留记录原文。在插件面板中选择翻译服务和目标语言。翻译会将显示的思考内容发送给所选外部服务，其中可能包含私有代码或对话细节。Session 和模型上下文保留原始思考内容。
 
 ## 目录
 
@@ -39,7 +39,7 @@ kind: "package-reference"
 <details>
 <summary>维护者细节 — 点击展开</summary>
 
-浏览器向 Chat 的 `conversation.chat.reasoning.body` single Slot 注册包装组件，通过官方 `conversation.chat.reasoning.content` Factory 渲染原文或译文。包装组件自行维护工具栏与视图状态，将自己的本地化 Markdown labels 传入 Factory；Factory 负责排版。Host 暴露可取消的翻译 Remote 方法。Host 在浏览器启用翻译前提供已接受的翻译服务和语言偏好。设置更新及重新连接会刷新这些偏好和 translator 的请求长度限制。限制变化时，展开内容的请求被取消并重新分片。每个展开区域的生命周期控制器串行处理完整片段，在挂载期间缓存译文，在拆分长段落时保留空白和 Unicode 代理对，并忽略取消后的结果。
+浏览器向 Chat 的 `conversation.chat.reasoning.body` single Slot 注册包装组件，通过官方 `conversation.chat.reasoning.content` Factory 渲染原文或译文；同时向 Trajectory 的 `conversation.trajectory.reasoning.body` single Slot 注册同样的包装组件，并通过 `conversation.trajectory.reasoning.content` Factory 渲染。包装组件自行维护工具栏与视图状态，将自己的本地化 Markdown labels 传入 Factory；Factory 负责排版。Host 暴露可取消的翻译 Remote 方法。Host 在浏览器启用翻译前提供已接受的翻译服务和语言偏好。设置更新及重新连接会刷新这些偏好和 translator 的请求长度限制。限制变化时，展开内容的请求被取消并重新分片。每个展开区域的生命周期控制器串行处理完整片段，在挂载期间缓存译文，在拆分长段落时保留空白和 Unicode 代理对，并忽略取消后的结果。
 
 浏览器将每个请求绑定到展开区域的 Session。Host 要求请求使用已接受的提供方以及配置中显式指定的目标语言；`auto` 使用浏览器区域语言。已认证的 Client 提供原文与 Session 身份，Host 不校验原文是否属于该 Session。translator 持久化与 Provider 无关的请求／结果记录，在折叠、重载或重新打开 Session 后复用已完成结果。浏览器缓存只优化当前展示。
 

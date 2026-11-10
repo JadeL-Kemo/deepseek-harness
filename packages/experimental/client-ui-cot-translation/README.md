@@ -9,7 +9,7 @@ English | [中文](README.zh.md)
 
 ## Summary
 
-Read expanded model reasoning in another language and switch back to its original text. Choose a translation service and target language from the Plugins panel. Translation sends displayed reasoning to the selected external service, which may include private code or conversation details. Original reasoning remains in the Session and model context.
+Read expanded model reasoning in another language and switch back to its original text. Translation covers the expanded reasoning body in Chat and the expanded thinking disclosure in the Trajectory inspector; folded previews and the raw inspector tab keep recorded text. Choose a translation service and target language from the Plugins panel. Translation sends displayed reasoning to the selected external service, which may include private code or conversation details. Original reasoning remains in the Session and model context.
 
 ## Table of Contents
 
@@ -39,7 +39,7 @@ For custom compositions, mount this plugin alongside the [translator service](..
 <details>
 <summary>Maintainer details — click to expand</summary>
 
-The browser registers a wrapper in Chat's `conversation.chat.reasoning.body` single Slot and renders original or translated text through the official `conversation.chat.reasoning.content` Factory. The wrapper owns its toolbar and view state, and passes its localized Markdown labels to the Factory; the Factory owns typography. The Host exposes cancellation-aware translation Remote methods. The Host supplies accepted provider and language preferences before the browser enables translation. Settings updates and reconnects refresh these preferences and the translator's request limit. A changed limit cancels and splits the expanded text again. One disclosure lifecycle controller serializes completed fragments, caches their translations while mounted, preserves whitespace and Unicode pairs when splitting long paragraphs, and excludes results after cancellation.
+The browser registers a wrapper in Chat's `conversation.chat.reasoning.body` single Slot and renders original or translated text through the official `conversation.chat.reasoning.content` Factory. It registers the same wrapper pattern in Trajectory's `conversation.trajectory.reasoning.body` single Slot and renders through `conversation.trajectory.reasoning.content`. The wrapper owns its toolbar and view state, and passes its localized Markdown labels to the Factory; the Factory owns typography. The Host exposes cancellation-aware translation Remote methods. The Host supplies accepted provider and language preferences before the browser enables translation. Settings updates and reconnects refresh these preferences and the translator's request limit. A changed limit cancels and splits the expanded text again. One disclosure lifecycle controller serializes completed fragments, caches their translations while mounted, preserves whitespace and Unicode pairs when splitting long paragraphs, and excludes results after cancellation.
 
 The browser binds each request to the disclosure's Session. The Host requires the accepted provider and any explicitly configured target language; `auto` uses the browser locale. The authenticated Client supplies source text and Session identity, and the Host does not verify that the source text belongs to that Session. The translator durably stores provider-independent request/result records and reuses completed results after collapse, reload or reopening the Session. The browser cache only optimizes the current display.
 

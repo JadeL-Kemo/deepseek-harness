@@ -18,7 +18,9 @@ import { trajectoryRecordId, type TrajectoryCellProps } from '../src/client/traj
 import { t, tZh } from './locale.client.ts'
 
 const loadImage: MessageImageLoader = async () => 'blob:trajectory'
-const renderNoImages: PropsRenderSlots<'conversation.trajectory.images'>['renderSlot'] = () => null
+// The ledger routes both image galleries and expanded reasoning through owned seats.
+const renderNoImages = (_name: string, _owner: object, opts?: { fallback?: ReactNode }): ReactNode =>
+  opts?.fallback ?? null
 
 const RecordImages = ({ images }: MessageImagesOwnerProps) => (
   <div data-testid="record-images" data-count={images.length}>
@@ -36,9 +38,12 @@ async function imageSlotFixture() {
   onTestFinished(() => runtime.dispose())
   await runtime.sessions.add({ id: 'trajectory-images' })
   const session = runtime.sessions.retainFor(runtime.ctx, SessionId('trajectory-images'))
-  type Seats = PropsRenderSlots<'conversation.trajectory.images'>
+  type Seats = PropsRenderSlots<'conversation.trajectory.images' | 'conversation.trajectory.reasoning.body'>
   const captured: { seats?: Seats; setContent?: (content: ReactNode) => void } = {}
-  await runtime.root.declare({ 'conversation.trajectory.images': { kind: 'single', scope: 'session' } }, function TestRoot(props) {
+  await runtime.root.declare({
+    'conversation.trajectory.images': { kind: 'single', scope: 'session' },
+    'conversation.trajectory.reasoning.body': { kind: 'single', scope: 'session' },
+  }, function TestRoot(props) {
     const [content, setContent] = useState<ReactNode>(null)
     captured.seats = props
     captured.setContent = setContent
@@ -344,6 +349,38 @@ describe('TrajectoryTable', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Thinking' }))
     expect(screen.queryByRole('heading', { name: 'Thinking heading' })).toBeNull()
     expect(screen.getByRole('heading', { name: 'Answer heading' })).toBeTruthy()
+  })
+
+  it('routes expanded thinking through the reasoning body Slot with its display state', () => {
+    const turns: readonly TrajectoryTurnModel[] = [{
+      turn: 1,
+      groups: [{
+        title: 'Step 1',
+        cells: [{
+          index: 1,
+          kind: 'message',
+          text: 'Answer',
+          thinkingDetail: 'Reasoning body detail',
+          timeSeconds: 1,
+        }],
+      }],
+    }]
+    const renderSlot = vi.fn((
+      name: 'conversation.trajectory.images' | 'conversation.trajectory.reasoning.body',
+      owner: object, opts?: { fallback?: ReactNode },
+    ): ReactNode => (name === 'conversation.trajectory.reasoning.body'
+      ? <div data-testid="reasoning-body">{String((owner as { text: unknown }).text)}</div>
+      : opts?.fallback ?? null))
+    render(<TrajectoryTable turns={turns} {...FOLD_PROPS} renderSlot={renderSlot} />)
+    fireEvent.click(screen.getByRole('row', { name: /ASSISTANT/ }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Preview' }))
+
+    expect(screen.getByTestId('reasoning-body').textContent).toBe('Reasoning body detail')
+    const reasoningCall = renderSlot.mock.calls.find(
+      call => call[0] === 'conversation.trajectory.reasoning.body',
+    )
+    expect(reasoningCall?.[1]).toEqual({ text: 'Reasoning body detail', running: false, preview: true })
+    expect(reasoningCall?.[2]?.fallback).toBeTruthy()
   })
 
   it('opens thinking on another record after collapsing the selected record', () => {
@@ -1292,7 +1329,10 @@ describe('TrajectoryTable', () => {
         runningCalls: [],
       }, translate)
       const { render, renderSlot: slotRenderer } = await imageSlotFixture()
-      const renderSlot = vi.fn((name: 'conversation.trajectory.images', owner: object) => slotRenderer(name, owner as MessageImagesOwnerProps))
+      const renderSlot = vi.fn((name: 'conversation.trajectory.images' | 'conversation.trajectory.reasoning.body',
+        owner: object, opts?: { fallback?: ReactNode }) => name === 'conversation.trajectory.images'
+        ? slotRenderer(name, owner as MessageImagesOwnerProps)
+        : opts?.fallback ?? null)
       const view = render(<LocalizedTrajectoryTable turns={turns} {...FOLD_PROPS} t={translate}
         renderSlot={renderSlot} loadImage={loadImage} />)
       fireEvent.click(view.container.querySelector('[data-trajectory-row-key]')!)

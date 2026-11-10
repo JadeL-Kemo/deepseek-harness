@@ -24,7 +24,7 @@ import {
   Tooltip,
   writeClipboard,
 } from '@deepseek-ai/dsh-client-ui-primitives'
-import type { JsonTreeLabels, JsonTreeProps, MarkdownLabels } from '@deepseek-ai/dsh-client-ui-primitives'
+import type { JsonTreeLabels, JsonTreeProps } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { PropsRenderSlots } from '@deepseek-ai/dsh-client-ui-slots'
 import { structuredPatch } from 'diff'
 import type {
@@ -40,6 +40,7 @@ import {
 import type { TrajectoryVirtualRow } from './trajectory-virtual-rows.ts'
 import type { TrajectoryTurnModel } from './layout.ts'
 import { trajectoryPreviewText } from './trajectory-preview.ts'
+import { markdownLabels } from './trajectory-markdown.ts'
 import type { TrajectoryKey, TrajectoryTranslate } from './locales.ts'
 import { COMPACTION_INTERRUPTED_ERROR } from './copy-codes.ts'
 import { codeProgram, PTC_TOOL_NAME, type CodeProgram } from './code-program.ts'
@@ -258,13 +259,6 @@ function jsonTreeLabels(t: TrajectoryTranslate): JsonTreeLabels {
   }
 }
 
-function markdownLabels(t: TrajectoryTranslate): MarkdownLabels {
-  return {
-    code: { copyLabel: t('copy'), copiedLabel: t('copied') },
-    footnotes: t('markdown.footnotes'),
-  }
-}
-
 type TrajectorySplitStyle = CSSProperties & {
   '--trajectory-tool-request-width': string
 }
@@ -403,7 +397,7 @@ export interface TrajectoryTableProps {
   /** Trajectory locale seat. */
   t: TrajectoryTranslate
   /** Slot-backed durable image renderer shared with the Chat gallery. */
-  renderSlot: PropsRenderSlots<'conversation.trajectory.images'>['renderSlot']
+  renderSlot: PropsRenderSlots<'conversation.trajectory.images' | 'conversation.trajectory.reasoning.body'>['renderSlot']
   /** Session-bound loader for durable message image attachments. */
   loadImage: MessageImageLoader
   /** Session-global request numbers for the request groups visible in this context. */
@@ -1264,7 +1258,7 @@ function RecordAttachments({
 }: {
   blocks: readonly TrajectorySourceBlock[] | undefined
   preview: boolean
-  renderSlot: PropsRenderSlots<'conversation.trajectory.images'>['renderSlot']
+  renderSlot: PropsRenderSlots<'conversation.trajectory.images' | 'conversation.trajectory.reasoning.body'>['renderSlot']
   loadImage: MessageImageLoader
   t: TrajectoryTranslate
 }) {
@@ -1505,7 +1499,7 @@ function ToolOutputBlocks({
   /** Failure name and code shown only when no recorded text block is non-empty. */
   errorDetail?: string | undefined
   preview: boolean
-  renderSlot: PropsRenderSlots<'conversation.trajectory.images'>['renderSlot']
+  renderSlot: PropsRenderSlots<'conversation.trajectory.images' | 'conversation.trajectory.reasoning.body'>['renderSlot']
   loadImage: MessageImageLoader
 }) {
   return (
@@ -1550,7 +1544,7 @@ function MarkdownRecordContent({
   thinkingExpanded: boolean
   onThinkingExpandedChange: (expanded: boolean) => void
   onOpenCall: (callId: string) => void
-  renderSlot: PropsRenderSlots<'conversation.trajectory.images'>['renderSlot']
+  renderSlot: PropsRenderSlots<'conversation.trajectory.images' | 'conversation.trajectory.reasoning.body'>['renderSlot']
   loadImage: MessageImageLoader
   t: TrajectoryTranslate
 }) {
@@ -1592,15 +1586,21 @@ function MarkdownRecordContent({
             {t('record.thinking')}
             <IconChevronRightOutlineRegular className={css.thinkingChevron} size={12} />
           </button>
-          {thinkingExpanded && (
-            <MarkdownFragment
-              text={record.cell.thinkingDetail}
-              rendered={rendered}
-              preview={preview}
-              variant="compact"
-              t={t}
-            />
-          )}
+          {thinkingExpanded && renderSlot('conversation.trajectory.reasoning.body', {
+            text: record.cell.thinkingDetail,
+            running: record.cell.assistantMetrics?.completedTime === null,
+            preview,
+          }, {
+            fallback: (
+              <MarkdownFragment
+                text={record.cell.thinkingDetail}
+                rendered={rendered}
+                preview={preview}
+                variant="compact"
+                t={t}
+              />
+            ),
+          })}
         </div>
         {record.cell.outputDetail && (
           <div className={css.assistantOutput}>
@@ -1730,7 +1730,7 @@ function RecordPayload({
   record: TableRecord
   direction: 'input' | 'output'
   preview?: boolean
-  renderSlot: PropsRenderSlots<'conversation.trajectory.images'>['renderSlot']
+  renderSlot: PropsRenderSlots<'conversation.trajectory.images' | 'conversation.trajectory.reasoning.body'>['renderSlot']
   loadImage: MessageImageLoader
   stringWrapping: JsonTreeProps['stringWrapping']
   t: TrajectoryTranslate

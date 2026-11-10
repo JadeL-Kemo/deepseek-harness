@@ -3,6 +3,7 @@ import type {
   ConversationViewNode, MessageImagesOwnerProps, PartialAssistant, RequestPromptChange,
   RequestView, RunningToolCall, SystemPromptNode, ToolCallBlock,
 } from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type { MarkdownLabels } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { SnapshotSelectorHook } from '@deepseek-ai/dsh-client-ui-slots'
 
 /** Request-header facts retained by the Trajectory target. */
@@ -80,6 +81,28 @@ export interface TrajectorySnapshot {
 /** Selector hook over the current Conversation binding's Trajectory target. */
 export type UseTrajectory = SnapshotSelectorHook<TrajectorySnapshot>
 
+/** Raw reasoning text and display facts offered to the expanded Trajectory reasoning Body Slot. */
+export interface TrajectoryReasoningBodyOwnerProps {
+  /** Complete or streaming assistant reasoning text. */
+  readonly text: string
+  /** Whether the reasoning tail is still streaming. */
+  readonly running: boolean
+  /** Whether the owner renders a folded inspector preview. */
+  readonly preview: boolean
+}
+
+/** Session-independent reasoning Markdown with Trajectory labels and compact typography. */
+export interface TrajectoryReasoningContentInput {
+  /** Caller-selected Markdown. */
+  readonly text: string
+  /** Whether the supplied text is still streaming. */
+  readonly running: boolean
+  /** Whether the caller renders a folded inspector preview. */
+  readonly preview?: boolean
+  /** Localized Markdown controls, used unchanged when supplied; omission uses Trajectory's defaults. */
+  readonly labels?: MarkdownLabels
+}
+
 declare module '@deepseek-ai/dsh-client-ui-conversation/client' {
   interface ConversationViewSnapshotMap {
     /** Independently assembled data consumed by the Trajectory view. */
@@ -101,5 +124,26 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
      * images are omitted.
      */
     'conversation.trajectory.images': { kind: 'single'; scope: 'session'; owner: MessageImagesOwnerProps }
+
+    /**
+     * Expanded assistant reasoning inside the Trajectory inspector. The owner
+     * supplies the complete reasoning text and its display facts. A
+     * registration replaces the shipped compact Markdown; it must still render
+     * untranslated text on request.
+     */
+    'conversation.trajectory.reasoning.body': {
+      kind: 'single'
+      scope: 'session'
+      owner: TrajectoryReasoningBodyOwnerProps
+    }
+  }
+
+  interface SlotFactoryMap {
+    /** Session-independent reasoning Markdown with Trajectory labels and compact typography. */
+    'conversation.trajectory.reasoning.content': {
+      scope: 'root'
+      props: TrajectoryReasoningContentInput
+      locale: 'trajectory'
+    }
   }
 }

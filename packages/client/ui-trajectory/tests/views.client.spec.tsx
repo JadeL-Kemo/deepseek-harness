@@ -406,7 +406,9 @@ function mount(fixture: Awaited<ReturnType<typeof bench>>) {
         }
       })()
       : injected
-    const viewProps: ConvViewProps & Pick<PropsRenderSlots<'conversation.trajectory.images'>, 'renderSlot'> = {
+    const viewProps: ConvViewProps & Pick<PropsRenderSlots<
+      'conversation.trajectory.images' | 'conversation.trajectory.reasoning.body'
+    >, 'renderSlot'> = {
       ...owner, ...standardProps, renderSlot: () => null,
     }
     return (
